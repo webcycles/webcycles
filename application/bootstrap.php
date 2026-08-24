@@ -45,3 +45,11 @@ require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
 
 $autoloader = new WebCycles\Foundations\Autoloader();
 $autoloader->register();
+
+$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
+
+$composer = new WebCycles\Foundations\Composer\Composer();
+
+/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+
+require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";

@@ -1,5 +1,3 @@
-#!/usr/bin/env php
-
 <?php
 
 /*
@@ -27,19 +25,21 @@
  * 
  *             WebCycles
  * 
- * File Name: webcycles (.php)
+ * File Name: application/commands.php
  * Version: 1.0.0
- * Description: The main CLI file.
+ * Description: 
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
  *  - Bartłomiej 'Machina' Walczak <machina@duck.com>
  */
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "application" . DIRECTORY_SEPARATOR . "bootstrap.php";
+declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-exit($application->run());
+$application->add(new WebCycles\Foundations\Composer\ComposerRunCommand());
+$application->add(new WebCycles\Foundations\Composer\ComposerRemoveCommand());
+$application->add(new WebCycles\Foundations\Composer\ComposerUpdateCommand());
+$application->add(new WebCycles\Foundations\Composer\ComposerRequireCommand());
+$application->add(new WebCycles\Foundations\Composer\ComposerInstallCommand());
