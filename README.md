@@ -7,11 +7,15 @@
 # About WebCycles
 WebCycles is a PHP application framework offering unlimited creative freedom with low maintenance.
 
-Hey! I’m Bartłomiej, but online I’m known by the nickname “*Machina*”. I’m the creator of WebCycles — right now, the project is just a concept, an idea to build my own PHP framework. The idea came to me when I started working at a small company where I first encountered PHP and really enjoyed it. I admire other projects, both big and small — like **Laravel**, **WordPress**, **MediaWiki**, **Symfony**, and many other great projects! That’s why I decided I wanted to do my part, too, and launched the WebCycles project, which aims to make building applications simple in a user-friendly and transparent environment.
+---
 
-Since I’ve only had a year of experience with PHP itself, I still have a lot to learn, concepts to grasp, and difficult decisions to make, but I’m counting on your support and understanding as I develop this project.
+### My Statement
 
-I know there’s still a long way to go before this project is complete, but I believe in it and hope it will inspire further ideas.
+Hey! I’m Bartłomiej, but online I’m known by the nickname “*Machina*”. I’m the creator of WebCycles — right now, the project is just a concept, an idea to build my own PHP framework. The idea came to me when I started working at a small company where I first encountered PHP and really enjoyed it. I admire other projects, both big and small — like **Laravel**, **WordPress**, **MediaWiki**, **Symfony**, and many other great projects! That’s why I decided I wanted to do something too, so I decided to start the WebCycles project, which focuses on making it easier to create applications in a user-friendly and easy-to-understand environment.
+
+Since I’ve only had a year of experience with PHP itself, I still have a lot to learn, understand the concepts, and make tough decisions, but I’m counting on your support and understanding as I develop this project. 
+
+I know there’s still a long way to go before this project is complete, but I believe in it and want it to inspire further ideas.
 
 Any questions, problems, solutions, or ideas can be submitted in the “*Issues*” tab on GitHub, or you can email me privately at “*machina@duck.com*” using the format “*[Issue|Feature|Question|Solution] WebCycles: <ur_title>*”
 
