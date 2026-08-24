@@ -1,0 +1,9 @@
+composer.lock
+
+/vendor/
+
+/storage/*/*
+!/storage/*/.htaccess
+
+/configurations/**/*
+!/configurations/.htaccess

@@ -1,0 +1,49 @@
+#     ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ    
+#  ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ 
+# ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆ   ÆÆÆ   ÆÆÆ   ÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆ               ÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆ             ÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆ             ÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆ             ÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆ                       
+# ÆÆÆÆÆÆÆÆÆ                        
+# ÆÆÆÆÆÆÆÆÆ                        
+# ÆÆÆÆÆÆÆÆÆ               ÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆ               ÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆ                 ÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆ                 ÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆ                 ÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+# ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ
+#  ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ 
+#     ÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆÆ    
+#
+#             WebCycles
+#
+# File Name: public/.htaccess
+# Version: 1.0.0
+# Copyright: WebCycles (c) 2026
+# Description: 
+# License: MIT License
+# Authors: 
+#  - Bartłomiej 'Machina' Walczak <machina@duck.com>
+
+RewriteEngine On
+
+Options -Indexes
+
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteCond %{HTTP:x-xsrf-token} .
+RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]

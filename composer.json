@@ -1,0 +1,22 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "webcycles/webcycles",
+    "description": "WebCycles is a PHP application framework offering unlimited creative freedom with low maintenance.",
+    "type": "project",
+    "keywords": ["WebCycles", "Framework", "PHP"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Bartłomiej 'Machina' Walczak",
+            "email": "machina@duck.com"
+        }
+    ],
+    "require": {
+        "php": "^8.3"
+    },
+    "config": {
+        "sort-packages": true,
+        "preferred-install": "dist",
+        "optimize-autoloader": true
+    }
+}
