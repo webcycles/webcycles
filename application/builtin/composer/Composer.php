@@ -216,32 +216,49 @@ class Composer
         }
 
         // Run the installer
-        $command = sprintf(
-            '%s %s --install-dir=%s --filename=composer.phar --quiet 2>&1',
-            escapeshellarg($this->phpBinary),
-            escapeshellarg($installerPath),
-            escapeshellarg($this->composerDir)
-        );
+        $argvBackup = $GLOBALS['argv'] ?? ($_SERVER['argv'] ?? []);
+        $argcBackup = $GLOBALS['argc'] ?? ($_SERVER['argc'] ?? 0);
 
-        $output = '';
+        $customArgv = [
+            'composer-setup.php',
+            '--install-dir',
+            $this->composerDir,
+            '--filename',
+            'composer.phar',
+            '--quiet',
+        ];
+        $customArgc = count($customArgv);
+
+        $GLOBALS['argv'] = $_SERVER['argv'] = $customArgv;
+        $GLOBALS['argc'] = $_SERVER['argc'] = $customArgc;
+
+        ob_start();
         $exitCode = 0;
-        exec($command, $outputLines, $exitCode);
-        $output = implode(PHP_EOL, $outputLines);
+        try {
+            $result = (static function (string $installerPath) {
+                global $argv, $argc;
+                return include $installerPath;
+            })($installerPath);
+
+            if ($result === false) {
+                $exitCode = 1;
+            }
+        } catch (\Throwable $e) {
+            $exitCode = 1;
+            echo $e->getMessage();
+        } finally {
+            $output = ob_get_clean();
+            $GLOBALS['argv'] = $_SERVER['argv'] = $argvBackup;
+            $GLOBALS['argc'] = $_SERVER['argc'] = $argcBackup;
+        }
 
         // Clean up the installer
         @unlink($installerPath);
 
-        if ($exitCode !== 0) {
+        if ($exitCode !== 0 || !$this->isInstalled()) {
             return [
                 'success' => false,
-                'message' => 'Composer installer failed: ' . $output,
-            ];
-        }
-
-        if (!$this->isInstalled()) {
-            return [
-                'success' => false,
-                'message' => 'Composer installer ran but composer.phar was not found at: ' . $this->pharPath,
+                'message' => 'Composer installer failed: ' . ($output ?: 'composer.phar was not created at ' . $this->pharPath),
             ];
         }
 
@@ -365,6 +382,30 @@ class Composer
     }
 
     /**
+     * Prepare a path or string argument for CLI execution on the current OS.
+     * 
+     * On Windows, CLI subshells (cmd.exe/exec) expect paths in the active ANSI codepage
+     * rather than UTF-8 if they contain non-ASCII characters.
+     * 
+     * @param string $argument
+     * @return string
+     */
+    private function prepareCliArgument(string $argument): string
+    {
+        if (PHP_OS_FAMILY === 'Windows' && function_exists('sapi_windows_cp_get') && function_exists('sapi_windows_cp_conv')) {
+            $ansiCp = sapi_windows_cp_get('ansi');
+            if (is_int($ansiCp)) {
+                $converted = @sapi_windows_cp_conv(65001, $ansiCp, $argument);
+                if (is_string($converted) && $converted !== '') {
+                    return $converted;
+                }
+            }
+        }
+
+        return $argument;
+    }
+
+    /**
      * Execute a Composer command with the given arguments.
      * 
      * @param array<int, string> $args The command arguments.
@@ -381,10 +422,10 @@ class Composer
 
         $command = sprintf(
             '%s %s --working-dir=%s --no-interaction %s 2>&1',
-            escapeshellarg($this->phpBinary),
-            escapeshellarg($this->pharPath),
-            escapeshellarg($this->workingDir),
-            implode(' ', array_map('escapeshellarg', $args))
+            escapeshellarg($this->prepareCliArgument($this->phpBinary)),
+            escapeshellarg($this->prepareCliArgument($this->pharPath)),
+            escapeshellarg($this->prepareCliArgument($this->workingDir)),
+            implode(' ', array_map(fn(string $arg) => escapeshellarg($this->prepareCliArgument($arg)), $args))
         );
 
         // Set COMPOSER_HOME to keep Composer config isolated

@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/bootstrap.php
+ * File Name: application/builtin/http/Exceptions/RouteNotFoundException.php
  * Version: 1.0.0
- * Description: The kernel bootloader file.
+ * Description: 404 Not Found HTTP exception thrown when no route matches the request path.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,24 +38,27 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-require __DIR__ . DIRECTORY_SEPARATOR . "defines.php";
-require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
+namespace WebCycles\Foundations\HTTP\Exceptions;
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+use Throwable;
 
-$autoloader = new WebCycles\Foundations\Autoloader();
-$autoloader->register();
+/**
+ * 404 Not Found HTTP exception thrown when no route matches the request path.
+ */
+class RouteNotFoundException extends HttpException
+{
+    public function __construct(
+        string $path = '',
+        string $message = '',
+        array $headers = [],
+        ?Throwable $previous = null
+    ) {
+        if ($message === '') {
+            $message = $path !== ''
+                ? sprintf('No route found matching path: "%s".', $path)
+                : 'The requested resource was not found.';
+        }
 
-$router = new WebCycles\Foundations\HTTP\Router();
-
-$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
-
-$composer = new WebCycles\Foundations\Composer\Composer();
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-$router->get("/", fn(\WebCycles\Foundations\HTTP\Request $request) => "Hello " . $request->get("name", "User") . "! Welcome in WebCycles " . WEBCYCLES_VERSION);
+        parent::__construct(404, $message, $headers, $previous);
+    }
+}

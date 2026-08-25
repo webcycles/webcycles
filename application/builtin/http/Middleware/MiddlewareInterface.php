@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/bootstrap.php
+ * File Name: application/builtin/http/Middleware/MiddlewareInterface.php
  * Version: 1.0.0
- * Description: The kernel bootloader file.
+ * Description: Interface for HTTP middleware in Pipeline architecture.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,24 +38,23 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-require __DIR__ . DIRECTORY_SEPARATOR . "defines.php";
-require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
+namespace WebCycles\Foundations\HTTP\Middleware;
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+use Closure;
+use WebCycles\Foundations\HTTP\Request;
+use WebCycles\Foundations\HTTP\Response;
 
-$autoloader = new WebCycles\Foundations\Autoloader();
-$autoloader->register();
-
-$router = new WebCycles\Foundations\HTTP\Router();
-
-$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
-
-$composer = new WebCycles\Foundations\Composer\Composer();
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-$router->get("/", fn(\WebCycles\Foundations\HTTP\Request $request) => "Hello " . $request->get("name", "User") . "! Welcome in WebCycles " . WEBCYCLES_VERSION);
+/**
+ * Interface for middleware layers in Pipeline (Onion Architecture).
+ */
+interface MiddlewareInterface
+{
+    /**
+     * Handles an incoming request and passes it to the next handler or returns a response.
+     *
+     * @param Request $request Current HTTP request
+     * @param Closure(Request): Response $next Next step in the pipeline chain
+     * @return Response
+     */
+    public function handle(Request $request, Closure $next): Response;
+}

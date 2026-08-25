@@ -7,3 +7,6 @@ composer.lock
 
 /configurations/**/*
 !/configurations/.htaccess
+
+/components/**/*
+!/components/.htaccess
