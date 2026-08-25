@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/builtin/composer/ComposerInstallCommand.php
+ * File Name: application/builtin/composer/Commands/ComposerRequireCommand.php
  * Version: 1.0.0
- * Description: CLI command to download and install Composer.
+ * Description: CLI command to require (add) a Composer package.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,13 +38,14 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-namespace WebCycles\Foundations\Composer;
+namespace WebCycles\Foundations\Composer\Commands;
 
+use WebCycles\Foundations\Composer\Composer;
 use WebCycles\Foundations\Console\Command;
 use WebCycles\Foundations\Console\Input;
 use WebCycles\Foundations\Console\Output;
 
-class ComposerInstallCommand extends Command
+class ComposerRequireCommand extends Command
 {
     /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
@@ -55,11 +56,13 @@ class ComposerInstallCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('composer:install')
-             ->setDescription('Download and install Composer to the runtime directory.')
-             ->addOption('force', 'Force reinstall even if Composer is already installed.')
-             ->addUsage('php webcycles composer:install')
-             ->addUsage('php webcycles composer:install --force');
+        $this->setName('composer:require')
+             ->setDescription('Add a package to the project dependencies.')
+             ->addArgument('package', 'The package name (e.g., monolog/monolog or monolog/monolog:^2.0).')
+             ->addOption('dev', 'Add as a development dependency.')
+             ->addUsage('php webcycles composer:require monolog/monolog')
+             ->addUsage('php webcycles composer:require monolog/monolog:^2.0')
+             ->addUsage('php webcycles composer:require phpunit/phpunit --dev');
     }
 
     /**
@@ -71,46 +74,47 @@ class ComposerInstallCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
-        $composer = new Composer();
+        $package = $input->getArgument(0);
 
-        $output->title('Composer Installation');
-
-        // Check if already installed
-        if ($composer->isInstalled() && !$input->hasOption('force')) {
-            $version = $composer->getVersion() ?? 'unknown';
-            $output->info('Composer is already installed.');
-            $output->keyValue('Version', $version);
-            $output->keyValue('Location', $composer->getPharPath());
-            $output->newLine();
-            $output->comment('Use --force to reinstall.');
-            $output->newLine();
-            return 0;
-        }
-
-        if ($composer->isInstalled()) {
-            $output->warning('Reinstalling Composer...');
-        }
-
-        // Download and install
-        $output->progress('Downloading Composer');
-        $result = $composer->download();
-
-        if (!$result['success']) {
-            $output->error($result['message']);
+        if ($package === null) {
+            $output->error('Missing required argument: <package>');
+            $output->comment('Usage: php webcycles composer:require <package>');
             return 1;
         }
 
-        $output->success($result['message']);
-        $output->newLine();
+        $composer = new Composer();
 
-        // Show version
-        $version = $composer->getVersion();
-        if ($version !== null) {
-            $output->keyValue('Version', $version);
+        if (!$composer->isInstalled()) {
+            $output->error('Composer is not installed. Run "php webcycles composer:install" first.');
+            return 1;
         }
-        $output->keyValue('Location', $composer->getPharPath());
-        $output->newLine();
 
+        // Parse package:version format
+        $version = null;
+        if (str_contains($package, ':')) {
+            [$package, $version] = explode(':', $package, 2);
+        }
+
+        $extraArgs = [];
+        if ($input->hasOption('dev')) {
+            $extraArgs[] = '--dev';
+        }
+
+        $displayName = $version !== null ? "{$package}:{$version}" : $package;
+        $output->progress("Requiring {$displayName}");
+
+        $result = $composer->require($package, $version, $extraArgs);
+
+        if ($result['output']) {
+            $output->writeln($result['output']);
+        }
+
+        if ($result['exitCode'] !== 0) {
+            $output->error("Failed to require {$displayName}");
+            return $result['exitCode'];
+        }
+
+        $output->success("Package {$displayName} added successfully.");
         return 0;
     }
 }

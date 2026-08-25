@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/builtin/composer/ComposerRequireCommand.php
+ * File Name: application/builtin/composer/Commands/ComposerUpdateCommand.php
  * Version: 1.0.0
- * Description: CLI command to require (add) a Composer package.
+ * Description: CLI command to update Composer dependencies.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,13 +38,14 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-namespace WebCycles\Foundations\Composer;
+namespace WebCycles\Foundations\Composer\Commands;
 
+use WebCycles\Foundations\Composer\Composer;
 use WebCycles\Foundations\Console\Command;
 use WebCycles\Foundations\Console\Input;
 use WebCycles\Foundations\Console\Output;
 
-class ComposerRequireCommand extends Command
+class ComposerUpdateCommand extends Command
 {
     /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
@@ -55,13 +56,11 @@ class ComposerRequireCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('composer:require')
-             ->setDescription('Add a package to the project dependencies.')
-             ->addArgument('package', 'The package name (e.g., monolog/monolog or monolog/monolog:^2.0).')
-             ->addOption('dev', 'Add as a development dependency.')
-             ->addUsage('php webcycles composer:require monolog/monolog')
-             ->addUsage('php webcycles composer:require monolog/monolog:^2.0')
-             ->addUsage('php webcycles composer:require phpunit/phpunit --dev');
+        $this->setName('composer:update')
+             ->setDescription('Update project dependencies.')
+             ->addArgument('packages', 'Optional specific packages to update (space-separated).')
+             ->addUsage('php webcycles composer:update')
+             ->addUsage('php webcycles composer:update monolog/monolog');
     }
 
     /**
@@ -73,14 +72,6 @@ class ComposerRequireCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
-        $package = $input->getArgument(0);
-
-        if ($package === null) {
-            $output->error('Missing required argument: <package>');
-            $output->comment('Usage: php webcycles composer:require <package>');
-            return 1;
-        }
-
         $composer = new Composer();
 
         if (!$composer->isInstalled()) {
@@ -88,32 +79,26 @@ class ComposerRequireCommand extends Command
             return 1;
         }
 
-        // Parse package:version format
-        $version = null;
-        if (str_contains($package, ':')) {
-            [$package, $version] = explode(':', $package, 2);
+        $packages = $input->getArguments();
+
+        if (empty($packages)) {
+            $output->progress('Updating all dependencies');
+        } else {
+            $output->progress('Updating: ' . implode(', ', $packages));
         }
 
-        $extraArgs = [];
-        if ($input->hasOption('dev')) {
-            $extraArgs[] = '--dev';
-        }
-
-        $displayName = $version !== null ? "{$package}:{$version}" : $package;
-        $output->progress("Requiring {$displayName}");
-
-        $result = $composer->require($package, $version, $extraArgs);
+        $result = $composer->update($packages);
 
         if ($result['output']) {
             $output->writeln($result['output']);
         }
 
         if ($result['exitCode'] !== 0) {
-            $output->error("Failed to require {$displayName}");
+            $output->error('Failed to update dependencies.');
             return $result['exitCode'];
         }
 
-        $output->success("Package {$displayName} added successfully.");
+        $output->success('Dependencies updated successfully.');
         return 0;
     }
 }

@@ -25,7 +25,7 @@
  * 
  *             WebCycles
  * 
- * File Name: application/builtin/composer/ComposerRemoveCommand.php
+ * File Name: application/builtin/composer/Commands/ComposerRemoveCommand.php
  * Version: 1.0.0
  * Description: CLI command to remove a Composer package.
  * Copyright: WebCycles (c) 2026
@@ -38,8 +38,9 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-namespace WebCycles\Foundations\Composer;
+namespace WebCycles\Foundations\Composer\Commands;
 
+use WebCycles\Foundations\Composer\Composer;
 use WebCycles\Foundations\Console\Command;
 use WebCycles\Foundations\Console\Input;
 use WebCycles\Foundations\Console\Output;

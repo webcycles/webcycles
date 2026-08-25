@@ -38,8 +38,8 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-$application->add(new WebCycles\Foundations\Composer\ComposerRunCommand());
-$application->add(new WebCycles\Foundations\Composer\ComposerRemoveCommand());
-$application->add(new WebCycles\Foundations\Composer\ComposerUpdateCommand());
-$application->add(new WebCycles\Foundations\Composer\ComposerRequireCommand());
-$application->add(new WebCycles\Foundations\Composer\ComposerInstallCommand());
+$application->add(new WebCycles\Foundations\Composer\Commands\ComposerRunCommand());
+$application->add(new WebCycles\Foundations\Composer\Commands\ComposerRemoveCommand());
+$application->add(new WebCycles\Foundations\Composer\Commands\ComposerUpdateCommand());
+$application->add(new WebCycles\Foundations\Composer\Commands\ComposerRequireCommand());
+$application->add(new WebCycles\Foundations\Composer\Commands\ComposerInstallCommand());

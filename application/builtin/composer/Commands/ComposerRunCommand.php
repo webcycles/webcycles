@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/builtin/composer/ComposerUpdateCommand.php
+ * File Name: application/builtin/composer/Commands/ComposerRunCommand.php
  * Version: 1.0.0
- * Description: CLI command to update Composer dependencies.
+ * Description: CLI command to run arbitrary Composer commands.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,13 +38,14 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-namespace WebCycles\Foundations\Composer;
+namespace WebCycles\Foundations\Composer\Commands;
 
+use WebCycles\Foundations\Composer\Composer;
 use WebCycles\Foundations\Console\Command;
 use WebCycles\Foundations\Console\Input;
 use WebCycles\Foundations\Console\Output;
 
-class ComposerUpdateCommand extends Command
+class ComposerRunCommand extends Command
 {
     /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
@@ -55,11 +56,12 @@ class ComposerUpdateCommand extends Command
      */
     protected function configure(): void
     {
-        $this->setName('composer:update')
-             ->setDescription('Update project dependencies.')
-             ->addArgument('packages', 'Optional specific packages to update (space-separated).')
-             ->addUsage('php webcycles composer:update')
-             ->addUsage('php webcycles composer:update monolog/monolog');
+        $this->setName('composer:run')
+             ->setDescription('Run an arbitrary Composer command.')
+             ->addArgument('command', 'The Composer command to run (e.g., "show --tree").')
+             ->addUsage('php webcycles composer:run show')
+             ->addUsage('php webcycles composer:run "show --tree"')
+             ->addUsage('php webcycles composer:run "dump-autoload --optimize"');
     }
 
     /**
@@ -71,6 +73,14 @@ class ComposerUpdateCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
+        $arguments = $input->getArguments();
+
+        if (empty($arguments)) {
+            $output->error('Missing required argument: <command>');
+            $output->comment('Usage: php webcycles composer:run <command>');
+            return 1;
+        }
+
         $composer = new Composer();
 
         if (!$composer->isInstalled()) {
@@ -78,26 +88,24 @@ class ComposerUpdateCommand extends Command
             return 1;
         }
 
-        $packages = $input->getArguments();
+        // Combine all remaining arguments as the Composer command
+        $composerCommand = implode(' ', $arguments);
 
-        if (empty($packages)) {
-            $output->progress('Updating all dependencies');
-        } else {
-            $output->progress('Updating: ' . implode(', ', $packages));
-        }
+        $output->progress("Running: composer {$composerCommand}");
+        $output->newLine();
 
-        $result = $composer->update($packages);
+        $result = $composer->run($composerCommand);
 
         if ($result['output']) {
             $output->writeln($result['output']);
         }
 
         if ($result['exitCode'] !== 0) {
-            $output->error('Failed to update dependencies.');
+            $output->newLine();
+            $output->error("Command failed with exit code {$result['exitCode']}");
             return $result['exitCode'];
         }
 
-        $output->success('Dependencies updated successfully.');
         return 0;
     }
 }
