@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/bootstrap.php
+ * File Name: application/builtin/services/Exceptions/BindingResolutionException.php
  * Version: 1.0.0
- * Description: The kernel bootloader file.
+ * Description: Exception thrown when service binding resolution fails in the container.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,35 +38,11 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-require __DIR__ . DIRECTORY_SEPARATOR . "defines.php";
-require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
+namespace WebCycles\Foundations\Services\Exceptions;
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+use RuntimeException;
 
-$autoloader = new WebCycles\Foundations\Autoloader();
-$autoloader->register();
-
-$services = new WebCycles\Foundations\Services\ServiceContainer();
-
-$router = new WebCycles\Foundations\HTTP\Router();
-
-$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
-
-$composer = new WebCycles\Foundations\Composer\Composer();
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-WebCycles\Foundations\Services\ServiceContainer::setInstance($services);
-
-$services->singleton(WebCycles\Foundations\Autoloader::class, $autoloader);
-$services->singleton(WebCycles\Foundations\HTTP\Router::class, $router);
-$services->singleton(WebCycles\Foundations\Console\Application::class, $application);
-$services->singleton(WebCycles\Foundations\Composer\Composer::class, $composer);
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-$router->get("/", fn(\WebCycles\Foundations\HTTP\Request $request) => "Hello " . $request->get("name", "User") . "! Welcome in WebCycles " . WEBCYCLES_VERSION);
+/**
+ * Exception thrown when service binding resolution fails in the container.
+ */
+class BindingResolutionException extends RuntimeException {}

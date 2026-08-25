@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/bootstrap.php
+ * File Name: application/builtin/services/Interfaces/ContainerInterface.php
  * Version: 1.0.0
- * Description: The kernel bootloader file.
+ * Description: Dependency injection container interface.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,35 +38,33 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-require __DIR__ . DIRECTORY_SEPARATOR . "defines.php";
-require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
+namespace WebCycles\Foundations\Services\Interfaces;
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+/**
+ * Dependency injection container interface.
+ *
+ * Defines basic methods to access registered services in the system.
+ * Compliant with PSR-11 (ContainerInterface).
+ *
+ * @since 1.0.0
+ */
+interface ContainerInterface
+{
+    /**
+     * Finds an entry of the container by its identifier and returns it.
+     *
+     * @param string $id Identifier of the entry to look for
+     * @return mixed Entry
+     * @throws \WebCycles\Foundations\Services\Exceptions\NotFoundException If no entry was found for the identifier
+     * @throws \WebCycles\Foundations\Services\Exceptions\ContainerException If error while retrieving the entry
+     */
+    public function get(string $id): mixed;
 
-$autoloader = new WebCycles\Foundations\Autoloader();
-$autoloader->register();
-
-$services = new WebCycles\Foundations\Services\ServiceContainer();
-
-$router = new WebCycles\Foundations\HTTP\Router();
-
-$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
-
-$composer = new WebCycles\Foundations\Composer\Composer();
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-WebCycles\Foundations\Services\ServiceContainer::setInstance($services);
-
-$services->singleton(WebCycles\Foundations\Autoloader::class, $autoloader);
-$services->singleton(WebCycles\Foundations\HTTP\Router::class, $router);
-$services->singleton(WebCycles\Foundations\Console\Application::class, $application);
-$services->singleton(WebCycles\Foundations\Composer\Composer::class, $composer);
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-$router->get("/", fn(\WebCycles\Foundations\HTTP\Request $request) => "Hello " . $request->get("name", "User") . "! Welcome in WebCycles " . WEBCYCLES_VERSION);
+    /**
+     * Returns true if the container can return an entry for the given identifier.
+     *
+     * @param string $id Identifier of the entry to look for
+     * @return bool
+     */
+    public function has(string $id): bool;
+}

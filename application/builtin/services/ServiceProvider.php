@@ -25,9 +25,9 @@
  * 
  *             WebCycles
  * 
- * File Name: application/bootstrap.php
+ * File Name: application/builtin/services/ServiceProvider.php
  * Version: 1.0.0
- * Description: The kernel bootloader file.
+ * Description: Abstract base class for service providers.
  * Copyright: WebCycles (c) 2026
  * License: MIT License
  * Authors: 
@@ -38,35 +38,40 @@ declare(strict_types=1);
 
 /* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
 
-require __DIR__ . DIRECTORY_SEPARATOR . "defines.php";
-require __DIR__ . DIRECTORY_SEPARATOR . "autoloader.php";
+namespace WebCycles\Foundations\Services;
 
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
+use WebCycles\Foundations\Services\ServiceContainer;
 
-$autoloader = new WebCycles\Foundations\Autoloader();
-$autoloader->register();
+/**
+ * Abstract base class for service providers.
+ *
+ * Service providers allow modular registration of bindings in the DI container
+ * and execution of initialization code (bootstrapping) after all services are registered.
+ *
+ * @since 1.0.0
+ */
+abstract class ServiceProvider
+{
+    /**
+     * Register service bindings in the container.
+     *
+     * In this method you should exclusively bind interfaces to implementations.
+     *
+     * @since 1.0.0
+     * @param ServiceContainer $container Dependency injection container
+     * @return void
+     */
+    abstract public function register(ServiceContainer $container): void;
 
-$services = new WebCycles\Foundations\Services\ServiceContainer();
-
-$router = new WebCycles\Foundations\HTTP\Router();
-
-$application = new WebCycles\Foundations\Console\Application('WebCycles', WEBCYCLES_VERSION);
-
-$composer = new WebCycles\Foundations\Composer\Composer();
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-WebCycles\Foundations\Services\ServiceContainer::setInstance($services);
-
-$services->singleton(WebCycles\Foundations\Autoloader::class, $autoloader);
-$services->singleton(WebCycles\Foundations\HTTP\Router::class, $router);
-$services->singleton(WebCycles\Foundations\Console\Application::class, $application);
-$services->singleton(WebCycles\Foundations\Composer\Composer::class, $composer);
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-require __DIR__ . DIRECTORY_SEPARATOR . "commands.php";
-
-/* =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
-
-$router->get("/", fn(\WebCycles\Foundations\HTTP\Request $request) => "Hello " . $request->get("name", "User") . "! Welcome in WebCycles " . WEBCYCLES_VERSION);
+    /**
+     * Bootstrap services after registration.
+     *
+     * Called after all providers have registered their bindings.
+     * Allows safe access to all registered container services.
+     *
+     * @since 1.0.0
+     * @param ServiceContainer $container Dependency injection container
+     * @return void
+     */
+    public function boot(ServiceContainer $container): void {}
+}
